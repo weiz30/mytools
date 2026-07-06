@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MyTools</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="功能選單">
+        <div class="brand">
+          <span class="brand-mark">M</span>
+          <div>
+            <h1>MyTools</h1>
+            <p>個人工具箱</p>
+          </div>
+        </div>
+
+        <nav class="menu" aria-label="工具">
+          <button class="menu-item is-active" type="button" data-tool="translate">
+            <span>翻譯功能</span>
+          </button>
+          <button class="menu-item" type="button" data-tool="ocr">
+            <span>圖片截字</span>
+          </button>
+          <button class="menu-item" type="button" data-tool="files">
+            <span>檔案庫</span>
+          </button>
+          <button class="menu-item" type="button" data-tool="images">
+            <span>圖片庫</span>
+          </button>
+        </nav>
+
+        <button class="ghost-button" type="button" id="resetStorage">清除本機資料</button>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">可擴充工具網站</p>
+            <h2 id="pageTitle">翻譯功能</h2>
+          </div>
+          <span class="status-pill" id="statusText">就緒</span>
+        </header>
+
+        <section class="tool-panel is-active" id="translate" aria-labelledby="translateTitle">
+          <div class="panel-heading">
+            <h3 id="translateTitle">英翻中 / 中翻英</h3>
+            <div class="segmented" role="group" aria-label="翻譯方向">
+              <button class="segment is-active" type="button" data-lang-from="en" data-lang-to="zh-TW">英翻中</button>
+              <button class="segment" type="button" data-lang-from="zh-TW" data-lang-to="en">中翻英</button>
+            </div>
+          </div>
+
+          <div class="translator-grid">
+            <label class="field">
+              <span>原文</span>
+              <textarea id="sourceText" placeholder="輸入要翻譯的文字"></textarea>
+            </label>
+            <label class="field">
+              <span>譯文</span>
+              <textarea id="translatedText" readonly placeholder="翻譯結果會顯示在這裡"></textarea>
+            </label>
+          </div>
+          <div class="actions">
+            <button class="primary-button" type="button" id="translateButton">開始翻譯</button>
+            <button class="secondary-button" type="button" id="swapButton">交換方向</button>
+          </div>
+        </section>
+
+        <section class="tool-panel" id="ocr" aria-labelledby="ocrTitle">
+          <div class="panel-heading">
+            <h3 id="ocrTitle">圖片截取文字</h3>
+            <span class="hint">支援 PNG、JPG、WEBP</span>
+          </div>
+          <label class="dropzone" for="ocrInput">
+            <input id="ocrInput" type="file" accept="image/*" />
+            <span>選擇圖片並擷取文字</span>
+          </label>
+          <div class="ocr-layout">
+            <img id="ocrPreview" alt="OCR 圖片預覽" />
+            <label class="field">
+              <span>辨識結果</span>
+              <textarea id="ocrText" readonly placeholder="OCR 結果會顯示在這裡"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section class="tool-panel" id="files" aria-labelledby="filesTitle">
+          <div class="panel-heading">
+            <h3 id="filesTitle">檔案庫</h3>
+            <span class="hint">資料儲存在此瀏覽器</span>
+          </div>
+          <label class="dropzone" for="fileInput">
+            <input id="fileInput" type="file" multiple />
+            <span>上傳檔案</span>
+          </label>
+          <div class="library-list" id="fileList"></div>
+        </section>
+
+        <section class="tool-panel" id="images" aria-labelledby="imagesTitle">
+          <div class="panel-heading">
+            <h3 id="imagesTitle">圖片庫</h3>
+            <span class="hint">可瀏覽、下載、刪除圖片</span>
+          </div>
+          <label class="dropzone" for="imageInput">
+            <input id="imageInput" type="file" accept="image/*" multiple />
+            <span>上傳圖片</span>
+          </label>
+          <div class="image-grid" id="imageGrid"></div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

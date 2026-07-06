@@ -32,6 +32,9 @@
           <button class="menu-item" type="button" data-tool="images">
             <span>圖片庫</span>
           </button>
+          <button class="menu-item" type="button" data-tool="links">
+            <span>常用連結</span>
+          </button>
         </nav>
 
         <button class="ghost-button" type="button" id="resetStorage">清除本機資料</button>
@@ -111,6 +114,40 @@
             <span>上傳圖片</span>
           </label>
           <div class="image-grid" id="imageGrid"></div>
+        </section>
+
+        <section class="tool-panel" id="links" aria-labelledby="linksTitle">
+          <div class="panel-heading">
+            <h3 id="linksTitle">常用連結</h3>
+            <span class="hint">依分類整理常用網站</span>
+          </div>
+
+          <form class="link-form" id="linkForm">
+            <label class="field">
+              <span>分類</span>
+              <input id="linkCategory" type="text" placeholder="例如：工作、學習、AI 工具" required />
+            </label>
+            <label class="field">
+              <span>網站名稱</span>
+              <input id="linkName" type="text" placeholder="例如：GitHub" required />
+            </label>
+            <label class="field">
+              <span>連結</span>
+              <input id="linkUrl" type="url" placeholder="https://example.com" required />
+            </label>
+            <button class="primary-button" type="submit">新增連結</button>
+          </form>
+
+          <div class="link-toolbar">
+            <label class="field">
+              <span>分類篩選</span>
+              <select id="linkCategoryFilter">
+                <option value="">全部分類</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="library-list" id="linkList"></div>
         </section>
       </main>
     </div>

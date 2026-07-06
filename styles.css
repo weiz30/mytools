@@ -26,7 +26,8 @@ body {
 
 button,
 textarea,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -223,6 +224,17 @@ textarea {
   line-height: 1.55;
 }
 
+input,
+select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 12px;
+  background: #fff;
+  color: var(--ink);
+}
+
 .actions {
   display: flex;
   gap: 10px;
@@ -297,6 +309,52 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
+}
+
+.link-form {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.8fr) minmax(180px, 1fr) minmax(240px, 1.5fr) auto;
+  align-items: end;
+  gap: 12px;
+  padding: 14px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.link-toolbar {
+  max-width: 280px;
+  margin-bottom: 14px;
+}
+
+.link-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.link-info {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.link-category {
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 0.85rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .library-name {
@@ -382,5 +440,14 @@ textarea {
 
   .library-row {
     grid-template-columns: 1fr;
+  }
+
+  .link-form,
+  .link-row {
+    grid-template-columns: 1fr;
+  }
+
+  .link-toolbar {
+    max-width: none;
   }
 }

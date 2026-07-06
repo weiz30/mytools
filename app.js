@@ -3,6 +3,7 @@ const tools = {
   ocr: "圖片截字",
   files: "檔案庫",
   images: "圖片庫",
+  links: "常用連結",
 };
 
 const state = {
@@ -93,7 +94,7 @@ async function runOcr(file) {
 
 function openDb() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open("mytools-library", 1);
+    const request = indexedDB.open("mytools-library", 2);
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains("files")) {
@@ -101,6 +102,9 @@ function openDb() {
       }
       if (!db.objectStoreNames.contains("images")) {
         db.createObjectStore("images", { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains("links")) {
+        db.createObjectStore("links", { keyPath: "id" });
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -139,8 +143,25 @@ function saveItem(storeName, file) {
   return transact(storeName, "readwrite", (store) => store.put(item));
 }
 
+function saveLink({ category, name, url }) {
+  const item = {
+    id: `${Date.now()}-${crypto.randomUUID()}`,
+    category: category.trim(),
+    name: name.trim(),
+    url: normalizeUrl(url),
+    createdAt: new Date().toISOString(),
+  };
+  return transact("links", "readwrite", (store) => store.put(item));
+}
+
 function deleteItem(storeName, id) {
   return transact(storeName, "readwrite", (store) => store.delete(id));
+}
+
+function normalizeUrl(url) {
+  const value = url.trim();
+  if (/^https?:\/\//i.test(value)) return value;
+  return `https://${value}`;
 }
 
 function downloadBlob(item) {
@@ -233,6 +254,58 @@ async function renderImages() {
     });
 }
 
+async function renderLinks() {
+  const links = await readAll("links");
+  const list = $("#linkList");
+  const filter = $("#linkCategoryFilter").value;
+  const categories = [...new Set(links.map((item) => item.category).filter(Boolean))].sort();
+
+  $("#linkCategoryFilter").innerHTML = '<option value="">全部分類</option>';
+  categories.forEach((category) => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    option.selected = category === filter;
+    $("#linkCategoryFilter").appendChild(option);
+  });
+
+  const visibleLinks = links
+    .filter((item) => !filter || item.category === filter)
+    .sort((a, b) => a.category.localeCompare(b.category, "zh-Hant") || a.name.localeCompare(b.name, "zh-Hant"));
+
+  list.innerHTML = "";
+  if (!visibleLinks.length) {
+    list.innerHTML = '<div class="empty-state">目前沒有常用連結。</div>';
+    return;
+  }
+
+  visibleLinks.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "link-row";
+    row.innerHTML = `
+      <div class="link-info">
+        <span class="link-category"></span>
+        <div class="library-name"></div>
+        <a class="library-meta" target="_blank" rel="noopener noreferrer"></a>
+      </div>
+      <button class="small-button" type="button">開啟</button>
+      <button class="small-button" type="button">刪除</button>
+    `;
+    row.querySelector(".link-category").textContent = item.category || "未分類";
+    row.querySelector(".library-name").textContent = item.name;
+    const link = row.querySelector("a");
+    link.href = item.url;
+    link.textContent = item.url;
+    const [openButton, deleteButton] = row.querySelectorAll("button");
+    openButton.addEventListener("click", () => window.open(item.url, "_blank", "noopener,noreferrer"));
+    deleteButton.addEventListener("click", async () => {
+      await deleteItem("links", item.id);
+      renderLinks();
+    });
+    list.appendChild(row);
+  });
+}
+
 async function handleUploads(storeName, fileList) {
   const files = Array.from(fileList || []);
   if (!files.length) return;
@@ -245,11 +318,25 @@ async function handleUploads(storeName, fileList) {
   setStatus("完成");
 }
 
+async function handleLinkSubmit(event) {
+  event.preventDefault();
+  await saveLink({
+    category: $("#linkCategory").value,
+    name: $("#linkName").value,
+    url: $("#linkUrl").value,
+  });
+  $("#linkForm").reset();
+  await renderLinks();
+  setStatus("已新增");
+}
+
 async function resetStorage() {
   await transact("files", "readwrite", (store) => store.clear());
   await transact("images", "readwrite", (store) => store.clear());
+  await transact("links", "readwrite", (store) => store.clear());
   await renderFiles();
   await renderImages();
+  await renderLinks();
   setStatus("已清除");
 }
 
@@ -257,6 +344,7 @@ async function init() {
   state.db = await openDb();
   await renderFiles();
   await renderImages();
+  await renderLinks();
 
   $$(".menu-item").forEach((button) => {
     button.addEventListener("click", () => switchTool(button.dataset.tool));
@@ -274,6 +362,8 @@ async function init() {
   $("#ocrInput").addEventListener("change", (event) => runOcr(event.target.files[0]));
   $("#fileInput").addEventListener("change", (event) => handleUploads("files", event.target.files));
   $("#imageInput").addEventListener("change", (event) => handleUploads("images", event.target.files));
+  $("#linkForm").addEventListener("submit", handleLinkSubmit);
+  $("#linkCategoryFilter").addEventListener("change", renderLinks);
   $("#resetStorage").addEventListener("click", resetStorage);
 }
 
